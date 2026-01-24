@@ -1,0 +1,49 @@
+# =================================================================       #
+#                 hSayac/hTimer - GENEL AYARLAR                           #
+# =================================================================       #
+# Bu eklenti heyetcoolio tarafından DedeSoftware adına yazılmıştır.       #
+# Eklenti ile ilgili desteği discord sunucumuzdan gelerek alabilirsiniz.  #
+# -------------------------------------------------                       #
+# Discord adresimiz : https://discord.gg/4d3KhsJhwF                       #
+# Bu eklenti heyetcoolio tarafından DedeSoftware adına yazılmıştır.       #
+# -------------------------------------------------                       #
+# You can get support regarding the plugin by joining our Discord server. #
+# Our Discord address: https://discord.gg/4d3KhsJhwF                      #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# Tarih formatı: YYYY-AA-GG SS:DD (Yıl-Ay-Gün Saat:Dakika)
+
+counters:
+  # TİP 1: Sabit Tarihli Sayaç (Bitiş tarihi bellidir, bir kere çalışır)
+  sezon_bitis:
+    type: "FIXED" # Sabit
+    date: "2026-06-29 15:00" # YYYY-MM-dd HH:mm
+    end-message: "&cSezon bitti geçmiş olsun!"
+    commands:
+      - "broadcast &4Sezon bitti sunucu kapanıyor..."
+      - "whitelist on"
+
+  # TİP 2: Haftalık Tekrarlayan Sayaç (Her hafta aynı gün/saat)
+  haftalik_event:
+    type: "WEEKLY" # Haftalık
+    day: "SUNDAY"  # Günler: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+    time: "20:00"  # Saat:Dakika (24 saatlik format)
+    end-message: "&bHAFTALIK EVENT BAŞLADI!"
+    commands:
+      - "broadcast &a&lHER PAZAR EVENTİ BAŞLADI! KOŞ!"
+      - "eco give * 1000"
+
+  bakim_gunu:
+    type: "WEEKLY"
+    day: "FRIDAY"
+    time: "03:00"
+    end-message: "&eOtomatik bakım zamanı."
+    commands:
+      - "save-all"
+      - "say Sunucu yedekleniyor..."
+
+messages:
+  prefix: "&8[&6hTimer&8] &r"
+  reload: "&aYapılandırma yenilendi, sayaçlar tekrar hesaplandı."
+
+

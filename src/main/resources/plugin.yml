@@ -1,0 +1,13 @@
+name: hSayac
+version: '1.0'
+main: github.heyetcoolio.hSayac.HSayac
+api-version: '1.20'
+load: STARTUP
+authors: [ heyetcoolio ]
+description: Sayaç eklentisi. (Sezon sistemi için)
+website: https://dedenw.com
+depend: [PlaceholderAPI]
+commands:
+  hsayac:
+    description: Sezonun bitiş süresini gösterir
+    usage: /hsayac
