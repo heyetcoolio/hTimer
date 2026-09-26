@@ -11,3 +11,4 @@ commands:
   hsayac:
     description: Sezonun bitiş süresini gösterir
     usage: /hsayac
+    aliases: [htimer]

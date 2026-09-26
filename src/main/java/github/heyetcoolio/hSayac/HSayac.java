@@ -43,27 +43,30 @@ public class HSayac extends JavaPlugin {
         }
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new SeasonPlaceholder(this).register();
+            new SeasonPlaceholder(this, "hsayac").register();
+            new SeasonPlaceholder(this, "htimer").register();
         }
 
         loadCounters();
         startCheckTask();
-        getLogger().info("hSayac v2.0 aktif! (Clean Code Modu)");
+        getLogger().info("hSayac v2.0 aktif!");
     }
 
     public void loadCounters() {
         counters.clear();
         ConfigurationSection section = getConfig().getConfigurationSection("counters");
 
-        if (section == null) return;
+        if (section == null)
+            return;
 
         for (String key : section.getKeys(false)) {
             String type = section.getString(key + ".type", "FIXED").toUpperCase();
             List<String> commands = section.getStringList(key + ".commands");
             String endMsg = section.getString(key + ".end-message");
+            String format = section.getString(key + ".format", "LONG").toUpperCase();
 
             try {
-                Counter counter = new Counter(key, commands, endMsg, type);
+                Counter counter = new Counter(key, commands, endMsg, type, format);
 
                 if ("WEEKLY".equals(type)) {
                     String dayStr = section.getString(key + ".day", "MONDAY").toUpperCase();
@@ -97,15 +100,18 @@ public class HSayac extends JavaPlugin {
                 LocalDateTime now = LocalDateTime.now();
 
                 for (Counter counter : counters.values()) {
-                    if (counter.isFinished()) continue;
-                    if (counter.getTargetDate() == null) continue;
+                    if (counter.isFinished())
+                        continue;
+                    if (counter.getTargetDate() == null)
+                        continue;
 
                     if (now.isAfter(counter.getTargetDate())) {
 
                         if (counter.getCommands() != null && !counter.getCommands().isEmpty()) {
                             Bukkit.getScheduler().runTask(instance, () -> {
                                 for (String cmdStr : counter.getCommands()) {
-                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), ChatColor.translateAlternateColorCodes('&', cmdStr));
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                            ChatColor.translateAlternateColorCodes('&', cmdStr));
                                 }
                             });
                         }
@@ -122,28 +128,33 @@ public class HSayac extends JavaPlugin {
     }
 
     @SuppressWarnings("unused")
-    public static HSayac getInstance() { return instance; }
+    public static HSayac getInstance() {
+        return instance;
+    }
 
     public static class Counter {
         private final String name;
         private final List<String> commands;
         private final String endMessage;
         private final String type;
+        private final String format;
 
         private LocalDateTime targetDate;
         private boolean finished = false;
         private DayOfWeek recurrenceDay;
         private LocalTime recurrenceTime;
 
-        public Counter(String name, List<String> commands, String endMessage, String type) {
+        public Counter(String name, List<String> commands, String endMessage, String type, String format) {
             this.name = name;
             this.commands = commands;
             this.endMessage = endMessage;
             this.type = type;
+            this.format = format;
         }
 
         public void calculateNextOccurrence() {
-            if (!"WEEKLY".equals(type)) return;
+            if (!"WEEKLY".equals(type))
+                return;
 
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime nextTarget = now.with(TemporalAdjusters.nextOrSame(recurrenceDay))
@@ -159,32 +170,73 @@ public class HSayac extends JavaPlugin {
         }
 
         public String getRemainingFormatted() {
-            if (finished) return endMessage;
-            if (targetDate == null) return "---";
+            if (finished)
+                return endMessage;
+            if (targetDate == null)
+                return "---";
 
             Duration duration = Duration.between(LocalDateTime.now(), targetDate);
-            if (duration.isNegative()) return "0 sn";
+            if (duration.isNegative())
+                return "0 sn";
 
             long days = duration.toDays();
             long hours = duration.toHours() % 24;
             long minutes = duration.toMinutes() % 60;
             long seconds = duration.getSeconds() % 60;
 
-            if (days > 0) return String.format("%d gün %d sa", days, hours);
-            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+            if ("SHORT".equals(this.format)) {
+                if (days > 0) {
+                    return String.format("%dg %ds %dd %ds", days, hours, minutes, seconds);
+                }
+                return String.format("%ds %dd %ds", hours, minutes, seconds);
+            } else {
+                if (days > 0) {
+                    return String.format("%d gün %d saat %d dakika %d saniye", days, hours, minutes, seconds);
+                }
+                return String.format("%d saat %d dakika %d saniye", hours, minutes, seconds);
+            }
         }
 
         @SuppressWarnings("unused")
-        public String getName() { return name; }
-        public LocalDateTime getTargetDate() { return targetDate; }
-        public void setTargetDate(LocalDateTime targetDate) { this.targetDate = targetDate; }
-        public List<String> getCommands() { return commands; }
+        public String getName() {
+            return name;
+        }
+
+        public LocalDateTime getTargetDate() {
+            return targetDate;
+        }
+
+        public void setTargetDate(LocalDateTime targetDate) {
+            this.targetDate = targetDate;
+        }
+
+        public List<String> getCommands() {
+            return commands;
+        }
+
         @SuppressWarnings("unused")
-        public String getEndMessage() { return endMessage; }
-        public String getType() { return type; }
-        public boolean isFinished() { return finished; }
-        public void setFinished(boolean finished) { this.finished = finished; }
-        public void setRecurrenceDay(DayOfWeek day) { this.recurrenceDay = day; }
-        public void setRecurrenceTime(LocalTime time) { this.recurrenceTime = time; }
+        public String getEndMessage() {
+            return endMessage;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public boolean isFinished() {
+            return finished;
+        }
+
+        public void setFinished(boolean finished) {
+            this.finished = finished;
+        }
+
+        public void setRecurrenceDay(DayOfWeek day) {
+            this.recurrenceDay = day;
+        }
+
+        public void setRecurrenceTime(LocalTime time) {
+            this.recurrenceTime = time;
+        }
     }
 }

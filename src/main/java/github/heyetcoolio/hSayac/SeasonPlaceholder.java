@@ -9,14 +9,16 @@ import org.jetbrains.annotations.NotNull;
 public class SeasonPlaceholder extends PlaceholderExpansion {
 
     private final HSayac plugin;
+    private final String identifier;
 
-    public SeasonPlaceholder(HSayac plugin) {
+    public SeasonPlaceholder(HSayac plugin, String identifier) {
         this.plugin = plugin;
+        this.identifier = identifier;
     }
 
     @Override
     public @NotNull String getIdentifier() {
-        return "hsayac";
+        return identifier;
     }
 
     @Override
@@ -27,6 +29,11 @@ public class SeasonPlaceholder extends PlaceholderExpansion {
     @Override
     public @NotNull String getVersion() {
         return "2.0";
+    }
+
+    @Override
+    public boolean persist() {
+        return true; // /papi reload yapıldığında placeholder'ın silinmesini engeller
     }
 
     @Override

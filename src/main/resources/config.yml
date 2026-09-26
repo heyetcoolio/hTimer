@@ -11,13 +11,12 @@
 # Our Discord address: https://discord.gg/4d3KhsJhwF                      #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Tarih formatı: YYYY-AA-GG SS:DD (Yıl-Ay-Gün Saat:Dakika)
-
 counters:
   # TİP 1: Sabit Tarihli Sayaç (Bitiş tarihi bellidir, bir kere çalışır)
   sezon_bitis:
     type: "FIXED" # Sabit
     date: "2026-06-29 15:00" # YYYY-MM-dd HH:mm
+    format: "LONG" # LONG: 120 gün 7 saat | SHORT: 120g 7s
     end-message: "&cSezon bitti geçmiş olsun!"
     commands:
       - "broadcast &4Sezon bitti sunucu kapanıyor..."
@@ -26,8 +25,9 @@ counters:
   # TİP 2: Haftalık Tekrarlayan Sayaç (Her hafta aynı gün/saat)
   haftalik_event:
     type: "WEEKLY" # Haftalık
-    day: "SUNDAY"  # Günler: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+    day: "SUNDAY"  # Günler: MONDAY, TUESDAY, vs...
     time: "20:00"  # Saat:Dakika (24 saatlik format)
+    format: "SHORT"
     end-message: "&bHAFTALIK EVENT BAŞLADI!"
     commands:
       - "broadcast &a&lHER PAZAR EVENTİ BAŞLADI! KOŞ!"
@@ -37,6 +37,7 @@ counters:
     type: "WEEKLY"
     day: "FRIDAY"
     time: "03:00"
+    format: "LONG"
     end-message: "&eOtomatik bakım zamanı."
     commands:
       - "save-all"
