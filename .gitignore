@@ -41,3 +41,8 @@ buildNumber.properties
 .classpath
 .project
 .settings/
+
+# Runtime and local tooling
+logs/
+*.tmp
+*.swp

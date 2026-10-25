@@ -1,143 +1,121 @@
-# hSayac / hTimer
+# hTimer
 
-Paper sunucuları için sabit tarihli ve haftalık tekrarlayan geri sayımlar oluşturan Minecraft eklentisi. Sayaçlar YAML üzerinden tanımlanır; PlaceholderAPI ile skor tahtası, hologram, tablist ve benzeri arayüzlerde gösterilebilir.
+English | [Türkçe](README_TR.md)
 
-## Özellikler
+## Project Overview
 
-- Sabit tarih ve saatte bir kez çalışan sayaçlar (`FIXED`)
-- Belirli gün ve saatte her hafta tekrarlanan sayaçlar (`WEEKLY`)
-- Sayaç tamamlandığında konsol komutları çalıştırma
-- `LONG` ve `SHORT` kalan süre biçimleri
-- PlaceholderAPI desteği
-- Yapılandırmayı sunucuyu yeniden başlatmadan yenileme
-- `/htimer` komut takma adı
+hTimer (plugin name: `hSayac`) is a lightweight Paper Minecraft plugin for scheduled countdowns, recurring weekly timers, and automated console commands. Timers are configured in YAML and can be displayed through PlaceholderAPI.
 
-## Gereksinimler
+## Features
 
-- Java 17 veya üzeri
-- Paper 1.20.4 (veya uyumlu Paper sürümü)
-- PlaceholderAPI 2.11.7 veya üzeri
+- One-time fixed-date timers (`FIXED`)
+- Weekly recurring timers (`WEEKLY`)
+- Console commands executed when a timer reaches its target
+- `LONG` and `SHORT` remaining-time formats
+- PlaceholderAPI integration
+- Configuration reload without restarting the server
+- `/htimer` command alias
 
-PlaceholderAPI `plugin.yml` içinde zorunlu bağımlılık olarak tanımlıdır. Bu nedenle PlaceholderAPI sunucuda yoksa hSayac yüklenmez.
+## Requirements
 
-## Kurulum
+- Java 17 or newer
+- Paper 1.20.4 or a compatible Paper version
+- PlaceholderAPI 2.11.7 or newer
 
-1. `target/hSayac-1.0.jar` dosyasını sunucunun `plugins/` klasörüne kopyalayın.
-2. PlaceholderAPI eklentisinin kurulu olduğundan emin olun.
-3. Sunucuyu başlatın veya yeniden başlatın.
-4. İlk çalıştırmadan sonra oluşan `plugins/hSayac/config.yml` dosyasını düzenleyin.
-5. Değişiklikleri `/hsayac reload` ile uygulayın.
+PlaceholderAPI is declared as a required dependency in `plugin.yml`.
 
-## Komutlar ve izinler
+## Installation
 
-| Komut | Açıklama | İzin |
-|---|---|---|
-| `/hsayac reload` | Yapılandırmayı yeniden yükler ve sayaçları yeniden hesaplar | `hsayac.admin` |
-| `/htimer reload` | `/hsayac` için alternatif komut adı | `hsayac.admin` |
+1. Run `mvn clean package` or download a built JAR.
+2. Copy `target/hSayac.jar` to the server's `plugins/` directory.
+3. Ensure PlaceholderAPI is installed.
+4. Start the server once and edit `plugins/hSayac/config.yml`.
+5. Apply changes with `/hsayac reload`.
 
-Yetkisi olmayan kullanıcılar komut çalıştırdığında `Yetkin yok.` mesajını alır.
+## Commands & Permissions
 
-## Sayaç yapılandırması
+| Command | Description | Permission |
+| --- | --- | --- |
+| `/hsayac reload` | Reloads configuration and recalculates timers | `hsayac.admin` |
+| `/htimer reload` | Alias for the hSayac command | `hsayac.admin` |
 
-Sayaçlar `config.yml` içindeki `counters` altında tanımlanır. Her sayaç için benzersiz bir anahtar kullanın:
+## Configuration
+
+Timers are defined below `counters` in `config.yml`:
 
 ```yaml
 counters:
-  sezon_bitis:
+  season_end:
     type: "FIXED"
     date: "2026-12-31 23:59"
     format: "LONG"
-    end-message: "&cSayaç tamamlandı."
+    end-message: "&cThe timer has ended."
     commands:
-      - "broadcast &aSayaç tamamlandı!"
+      - "broadcast &aThe timer has ended!"
 
-  haftalik_event:
+  weekly_event:
     type: "WEEKLY"
     day: "SUNDAY"
     time: "20:00"
     format: "SHORT"
-    end-message: "&bHaftalık etkinlik başladı!"
+    end-message: "&bThe weekly event has started!"
     commands:
-      - "broadcast &aEtkinlik başladı!"
+      - "broadcast &aThe event has started!"
 ```
 
-### Alanlar
+`FIXED` uses `date` in `YYYY-MM-dd HH:mm` format. `WEEKLY` uses an English day name from `MONDAY` through `SUNDAY` and a 24-hour `HH:mm` time. Commands are dispatched by the console and must not include a leading `/`.
 
-| Alan | Tür | Açıklama |
-|---|---|---|
-| `type` | `FIXED` / `WEEKLY` | Sayaç türü. Varsayılan: `FIXED` |
-| `date` | `YYYY-MM-dd HH:mm` | `FIXED` sayaçların bitiş zamanı |
-| `day` | İngilizce gün adı | `WEEKLY` sayaçlarda: `MONDAY`–`SUNDAY` |
-| `time` | `HH:mm` | `WEEKLY` sayaçların saati, 24 saat formatı |
-| `format` | `LONG` / `SHORT` | Kalan sürenin gösterim biçimi |
-| `end-message` | Metin | Sayaç bittikten sonra placeholder tarafından döndürülen metin |
-| `commands` | Komut listesi | Sayaç tamamlandığında konsoldan çalıştırılır; başına `/` koymayın |
+## PlaceholderAPI Integration
 
-`FIXED` sayaç bir kez çalışır ve tamamlandı olarak işaretlenir. `WEEKLY` sayaç bir sonraki haftaya otomatik hesaplanır. Zaman hesabı sunucunun sistem saatine göre yapılır.
-
-## PlaceholderAPI
-
-Eklenti iki identifier kaydeder: `hsayac` ve `htimer`.
+Both `hsayac` and `htimer` identifiers are registered:
 
 ```text
-%hsayac_kalan_<sayaç_adı>%
-%htimer_kalan_<sayaç_adı>%
+%hsayac_kalan_<counter_name>%
+%htimer_kalan_<counter_name>%
 ```
 
-Örnek:
+Unknown counter names return an empty value. `LONG` produces full Turkish duration text; `SHORT` uses compact labels.
 
-```text
-%hsayac_kalan_sezon_bitis%
-%htimer_kalan_haftalik_event%
-```
-
-Sayaç adı bulunamazsa boş değer döndürülür. `LONG` biçimi örneğin `3 gün 4 saat 12 dakika 8 saniye`, `SHORT` biçimi ise `3g 4s 12d 8s` olarak gösterilir.
-
-## Derleme
-
-Proje Maven kullanır. Java 17 ve Maven kurulu bir geliştirme ortamında:
+## Building from Source
 
 ```bash
-mvn clean package
+mvn -B verify
 ```
 
-Başarılı derleme sonunda kullanılacak dosya:
+The project targets Java 17, uses Paper API and PlaceholderAPI as provided dependencies, and produces `target/hSayac.jar`. There are currently no test sources, so the build verifies compilation and packaging but does not provide automated behavioral coverage.
 
-```text
-target/hSayac-1.0.jar
-```
-
-Bu proje için temiz derleme 25 Ekim 2026 tarihinde başarıyla doğrulanmıştır. Derleme sırasında yalnızca Maven Shade Plugin'in manifest dosyası örtüşmesi ve Java 17 için `--release` önerisiyle ilgili uyarılar görülmüştür; derlemeyi engelleyen bir hata yoktur. Test kaynakları bulunmadığı için otomatik test çalıştırılmamıştır.
-
-## Proje yapısı
+## Project Structure
 
 ```text
 src/main/java/github/heyetcoolio/hSayac/
-├── HSayac.java             # Eklenti yaşam döngüsü, sayaç yükleme ve kontrol görevi
-├── SeasonCommand.java      # /hsayac ve reload komutu
-└── SeasonPlaceholder.java  # PlaceholderAPI entegrasyonu
+├── HSayac.java
+├── SeasonCommand.java
+└── SeasonPlaceholder.java
 
 src/main/resources/
-├── plugin.yml               # Eklenti metadatası, komut ve bağımlılıklar
-└── config.yml               # Örnek sayaçlar ve mesajlar
+├── plugin.yml
+└── config.yml
 ```
 
-## Çalışma modeli
+## How It Works
 
-Eklenti sayaçları açılışta `config.yml` dosyasından yükler ve her saniye hedef zamana ulaşılıp ulaşılmadığını kontrol eder. Komutlar ana sunucu iş parçacığında çalıştırılır. Sayaçların kalan süresi `LocalDateTime` ve sunucunun sistem saatine göre hesaplanır.
+On enable, the plugin loads timers, registers the command and PlaceholderAPI expansions, then checks timer targets every second. Fixed timers are marked finished after execution; weekly timers calculate their next occurrence. Console commands are scheduled on the server thread.
 
-## Bilinen davranışlar ve dikkat edilmesi gerekenler
+## Known Limitations
 
-- `end-message` oyunculara ayrıca mesaj olarak gönderilmez; sayaç tamamlandıktan sonra placeholder sonucu olarak kullanılır.
-- `commands` listesindeki komutlar konsoldan çalışır ve komutların başında `/` bulunmamalıdır.
-- `date` değeri geçmişteyse sabit sayaç ilk kontrol döngüsünde tamamlanır.
-- Üretim sunucusunda `broadcast`, `whitelist on`, ekonomi veya bakım komutlarını kullanmadan önce komutların kurulu eklentiler tarafından desteklendiğini doğrulayın.
-- Kodda henüz otomatik birim/integrasyon testi bulunmamaktadır; gerçek çalışma doğrulaması Paper sunucusu üzerinde yapılmalıdır.
+- Time calculations use the server JVM's local system time; no separate timezone is configured.
+- `end-message` is returned by the placeholder after completion; it is not sent as a standalone player message.
+- Invalid timer fields are logged and that timer is skipped, while other timers continue loading.
+- There are no automated unit or integration tests yet.
+- The periodic task and target Paper behavior should be verified on a staging server.
+- Some legacy Bukkit APIs are used and may produce compilation deprecation warnings.
 
-## Lisans ve destek
+## Contributing
 
-Copyright (c) 2025 heyetcoolio. Lisans ayrıntıları için [LICENSE](LICENSE) dosyasına bakın.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or pull request. Use Conventional Commits, keep changes focused, and test with `mvn -B verify`.
 
-Destek: [DedeSoftware Discord](https://discord.gg/4d3KhsJhwF)
+## License
 
-Proje: [github.com/heyetcoolio/hTimer](https://github.com/heyetcoolio/hTimer)
+Copyright (c) 2025 heyetcoolio. This project is licensed under the MIT License; see [LICENSE](LICENSE).
+
+Project repository: [github.com/heyetcoolio/hTimer](https://github.com/heyetcoolio/hTimer)
